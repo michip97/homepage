@@ -16,7 +16,7 @@ const Downloads = () => {
     setError('');
 
     try {
-      const response = await axios.post('http://localhost:5123/api/auth/verify', { password });
+      const response = await axios.post('/api/auth/verify', { password });
       setToken(response.data.token);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Verification failed. Please try again.');
@@ -28,7 +28,7 @@ const Downloads = () => {
   const handleDownload = () => {
     if (token) {
       // In a real scenario we might fetch a blob, but window.open to the API with token works well for static files
-      window.open(`http://localhost:5123/api/download/cv?token=${token}`, '_blank');
+      window.open(`/api/download/cv?token=${token}`, '_blank');
     }
   };
 
