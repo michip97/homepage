@@ -82,6 +82,11 @@ jobs:
             export DOMAIN="${{ secrets.DOMAIN }}"
             export ACME_EMAIL="${{ secrets.ACME_EMAIL }}"
 
+            # Fix Traefik acme.json permissions
+            mkdir -p letsencrypt
+            touch letsencrypt/acme.json
+            chmod 600 letsencrypt/acme.json
+
             # Pull new images and recreate containers
             docker compose -f docker-compose.prod.yml pull
             docker compose -f docker-compose.prod.yml up -d
