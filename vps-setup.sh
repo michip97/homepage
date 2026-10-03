@@ -21,7 +21,7 @@ sudo apt-get install -y ca-certificates curl gnupg lsb-release
 
 # Add Docker’s official GPG key
 sudo mkdir -p /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor --yes -o /etc/apt/keyrings/docker.gpg
 
 # Set up the repository
 echo \
@@ -53,5 +53,8 @@ echo "2. VPS_USERNAME : $USER"
 echo "3. VPS_SSH_KEY : (Paste the private SSH key that allows access to this server)"
 echo "4. DB_PASSWORD : (Create a strong password for your PostgreSQL database)"
 echo "5. DOWNLOAD_PASSWORD : (The password people will use to download your CV)"
+echo "6. DOMAIN : (Your domain name, e.g., michael-portmann.ch)"
+echo "7. ACME_EMAIL : (Your email address for Let's Encrypt SSL certificates)"
 echo ""
-echo "Once these are set up, pushing to the 'main' branch will automatically deploy your website."
+echo "Make sure your domain's DNS A-Record points to this server's IP address: $(curl -s ifconfig.me)"
+echo "Once these are set up, pushing to the 'main' branch will automatically deploy your website over HTTPS."

@@ -76,9 +76,11 @@ jobs:
             echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
             # Export environment variables for docker-compose
-            export REPO=$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')
-            export POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
-            export DOWNLOAD_PASSWORD=${{ secrets.DOWNLOAD_PASSWORD }}
+            export REPO="$(echo "${{ github.repository }}" | tr '[:upper:]' '[:lower:]')"
+            export POSTGRES_PASSWORD="${{ secrets.DB_PASSWORD }}"
+            export DOWNLOAD_PASSWORD="${{ secrets.DOWNLOAD_PASSWORD }}"
+            export DOMAIN="${{ secrets.DOMAIN }}"
+            export ACME_EMAIL="${{ secrets.ACME_EMAIL }}"
 
             # Pull new images and recreate containers
             docker compose -f docker-compose.prod.yml pull
