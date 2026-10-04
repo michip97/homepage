@@ -3,6 +3,7 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import { motion } from 'framer-motion';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
+import Tilt from 'react-parallax-tilt';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -36,21 +37,24 @@ const Contact = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Contact Info */}
-          <div className="lg:col-span-1 space-y-8">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="bg-bgSecondary p-8 rounded-2xl border border-borderBase"
-            >
-              <h3 className="text-xl font-bold text-textPrimary mb-6">Contact Information</h3>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12" style={{ perspective: "1000px" }}>
+          {/* Contact Info & Map */}
+          <div className="lg:col-span-1 flex flex-col gap-8">
+            <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} glareEnable={true} glareMaxOpacity={0.1} glareColor="var(--accent)" className="rounded-2xl">
+              <motion.div
+                initial={{ opacity: 0, rotateX: -15, z: -100 }}
+                whileInView={{ opacity: 1, rotateX: 0, z: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="bg-bgSecondary/50 backdrop-blur-sm p-8 rounded-2xl border border-borderBase shadow-lg"
+              >
+                <h3 className="text-xl font-bold text-textPrimary mb-6">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start">
                   <MapPin className="w-6 h-6 text-accent mt-1 mr-4" />
                   <div>
                     <p className="font-medium text-textPrimary">Location</p>
-                    <p className="text-textSecondary">Voltastrasse 38<br />6005 Luzern, Switzerland</p>
+                    <p className="text-textSecondary">6005 Luzern<br />Switzerland</p>
                   </div>
                 </div>
                 <div className="flex items-start">
@@ -72,16 +76,42 @@ const Contact = () => {
                   </div>
                 </div>
               </div>
-            </motion.div>
+              </motion.div>
+            </Tilt>
+
+            {/* Google Maps iFrame */}
+            <Tilt tiltMaxAngleX={5} tiltMaxAngleY={5} glareEnable={true} glareMaxOpacity={0.1} glareColor="var(--accent)" className="rounded-2xl flex-grow">
+              <motion.div
+                initial={{ opacity: 0, rotateX: 15, z: -100 }}
+                whileInView={{ opacity: 1, rotateX: 0, z: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+                className="bg-bgSecondary/50 backdrop-blur-sm p-2 rounded-2xl border border-borderBase h-full shadow-lg overflow-hidden min-h-[250px]"
+              >
+                <iframe
+                  title="Google Maps Location"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2698.810526043126!2d8.3150!3d47.0396!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x478ffbf40d3a5105%3A0x6a2c2df283d57d5e!2sLuzern%2C%20Switzerland!5e0!3m2!1sen!2sch!4v1680000000000!5m2!1sen!2sch"
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, borderRadius: '0.75rem', minHeight: '200px' }}
+                  allowFullScreen={false}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                ></iframe>
+              </motion.div>
+            </Tilt>
           </div>
 
           {/* Contact Form */}
+          <Tilt tiltMaxAngleX={2} tiltMaxAngleY={2} glareEnable={true} glareMaxOpacity={0.05} glareColor="var(--accent)" className="lg:col-span-2 rounded-2xl">
           <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-2"
+            initial={{ opacity: 0, rotateY: 10, x: 50 }}
+            whileInView={{ opacity: 1, rotateY: 0, x: 0 }}
+            viewport={{ once: true, margin: "-50px" }}
+            transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
+            className="h-full"
           >
-            <form onSubmit={handleSubmit} className="bg-bgSecondary p-8 rounded-2xl border border-borderBase space-y-6">
+            <form onSubmit={handleSubmit} className="bg-bgSecondary/50 backdrop-blur-sm p-8 rounded-2xl border border-borderBase space-y-6 h-full shadow-lg flex flex-col justify-between">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-textPrimary mb-2">Name</label>
@@ -143,6 +173,7 @@ const Contact = () => {
               )}
             </form>
           </motion.div>
+          </Tilt>
         </div>
       </div>
     </PageWrapper>
