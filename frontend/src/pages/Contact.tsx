@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
 import Tilt from 'react-parallax-tilt';
+import { Canvas } from '@react-three/fiber';
+import { LucerneScene } from '../components/3d/LucerneScene';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -26,16 +28,35 @@ const Contact = () => {
   return (
     <PageWrapper>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-16"
-        >
-          <h1 className="text-4xl font-bold text-textPrimary mb-4">Get in Touch</h1>
-          <p className="text-xl text-textSecondary max-w-2xl mx-auto">
-            Interested in working together or have a question? I'd love to hear from you.
-          </p>
-        </motion.div>
+
+        {/* Interactive 3D Hero Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-center lg:text-left"
+          >
+            <h1 className="text-5xl font-extrabold text-textPrimary mb-6">Let's build something <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-500">amazing.</span></h1>
+            <p className="text-xl text-textSecondary mb-6 leading-relaxed">
+              Based in the beautiful city of Luzern. Whether you have a question about cloud architecture, a project proposal, or just want to say hi, I'll try my best to get back to you!
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1, ease: "easeOut" }}
+            className="h-[400px] w-full rounded-3xl overflow-hidden border border-borderBase bg-gradient-to-b from-bgSecondary/30 to-bgPrimary shadow-2xl relative cursor-grab active:cursor-grabbing"
+          >
+            <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-bgPrimary/80 backdrop-blur-md rounded-full text-xs font-medium text-textSecondary border border-borderBase">
+              Interactive 3D: Luzern Wasserturm
+            </div>
+            <Canvas camera={{ position: [5, 4, 8], fov: 45 }}>
+              <LucerneScene />
+            </Canvas>
+          </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12" style={{ perspective: "1000px" }}>
           {/* Contact Info & Map */}
