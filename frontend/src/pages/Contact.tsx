@@ -5,7 +5,7 @@ import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
 import Tilt from 'react-parallax-tilt';
 import { Canvas } from '@react-three/fiber';
-import { LucerneScene } from '../components/3d/LucerneScene';
+import { TechGlobeScene } from '../components/3d/TechGlobeScene';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -47,13 +47,19 @@ const Contact = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 1, ease: "easeOut" }}
-            className="h-[400px] w-full rounded-3xl overflow-hidden border border-borderBase bg-gradient-to-b from-bgSecondary/30 to-bgPrimary shadow-2xl relative cursor-grab active:cursor-grabbing"
+            className="h-[400px] w-full rounded-3xl overflow-hidden border border-borderBase bg-bgPrimary shadow-[0_0_50px_rgba(59,130,246,0.1)] relative cursor-grab active:cursor-grabbing"
           >
-            <div className="absolute top-4 left-4 z-10 px-3 py-1 bg-bgPrimary/80 backdrop-blur-md rounded-full text-xs font-medium text-textSecondary border border-borderBase">
-              Interactive 3D: Luzern Wasserturm
+            <div className="absolute top-4 left-4 z-10 flex items-center space-x-2">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
+              </span>
+              <div className="px-3 py-1 bg-bgPrimary/80 backdrop-blur-md rounded-full text-xs font-mono text-textSecondary border border-borderBase">
+                LOC: LUZERN_CH [47.0502° N, 8.3093° E]
+              </div>
             </div>
-            <Canvas camera={{ position: [5, 4, 8], fov: 45 }}>
-              <LucerneScene />
+            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+              <TechGlobeScene />
             </Canvas>
           </motion.div>
         </div>
