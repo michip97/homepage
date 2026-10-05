@@ -3,7 +3,6 @@ import { useFrame } from '@react-three/fiber';
 import { useTexture, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
-import { createNoise2D } from 'simplex-noise';
 
 // Convert Lat/Lon to 3D Cartesian coordinates on a sphere
 const latLongToVector3 = (lat: number, lon: number, radius: number) => {
@@ -22,53 +21,34 @@ const LUZERN_LAT = 47.0502;
 const LUZERN_LON = 8.3093;
 const GLOBE_RADIUS = 3;
 
-// Procedural Terrain for Luzern (Lake + Mountains)
+// Authentic Terrain for Luzern (Lake + Mountains based on real DEM)
 const LuzernTerrain = ({ opacity }: { opacity: number }) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const { theme } = useTheme();
 
-  const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(10, 10, 64, 64);
-    const noise2D = createNoise2D();
-
-    const positions = geo.attributes.position.array;
-    for (let i = 0; i < positions.length; i += 3) {
-      const x = positions[i];
-      const y = positions[i + 1];
-
-      // Create a lake in the center (flat), mountains on the edges
-      const distFromCenter = Math.sqrt(x * x + y * y);
-
-      if (distFromCenter < 2) {
-        // Lake Vierwaldstättersee area (mostly flat)
-        positions[i + 2] = noise2D(x * 0.5, y * 0.5) * 0.05;
-      } else {
-        // Mountains (Pilatus, Rigi)
-        const elevation = noise2D(x * 0.3, y * 0.3) * (distFromCenter - 2) * 0.8;
-        positions[i + 2] = elevation > 0 ? elevation : 0;
-      }
-    }
-    geo.computeVertexNormals();
-    return geo;
-  }, []);
+  // Load real elevation tile for Lucerne region
+  const heightMap = useTexture('/textures/luzern_heightmap.png');
 
   return (
     <group rotation={[-Math.PI / 2, 0, 0]}>
       {/* Terrain Surface */}
-      <mesh ref={meshRef} geometry={geometry}>
+      <mesh ref={meshRef} position={[0, 0, -0.5]}>
+        <planeGeometry args={[10, 10, 128, 128]} />
         <meshStandardMaterial
-          color={theme === 'dark' ? '#1e293b' : '#e2e8f0'}
+          color={theme === 'dark' ? '#1e293b' : '#94a3b8'}
           roughness={0.8}
+          displacementMap={heightMap}
+          displacementScale={2.5}
           transparent
           opacity={opacity}
           wireframe={true}
         />
       </mesh>
 
-      {/* Lake Plane overlay */}
-      <mesh position={[0, 0, 0.02]}>
-        <circleGeometry args={[2, 32]} />
-        <meshBasicMaterial color="#3b82f6" transparent opacity={opacity * 0.4} />
+      {/* Flat Lake Plane overlay (intersecting the terrain at specific height) */}
+      <mesh position={[0, 0, 0.2]}>
+        <planeGeometry args={[10, 10]} />
+        <meshBasicMaterial color="#3b82f6" transparent opacity={opacity * 0.2} depthWrite={false} />
       </mesh>
     </group>
   );
