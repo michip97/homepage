@@ -3,6 +3,7 @@ import { useFrame } from '@react-three/fiber';
 import { useTexture, OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 import { useTheme } from '../../context/ThemeContext';
+import { createNoise2D } from 'simplex-noise';
 
 // Convert Lat/Lon to 3D Cartesian coordinates on a sphere
 const latLongToVector3 = (lat: number, lon: number, radius: number) => {
@@ -21,37 +22,92 @@ const LUZERN_LAT = 47.0502;
 const LUZERN_LON = 8.3093;
 const GLOBE_RADIUS = 3;
 
-const WireframeWasserturm = ({ position, rotation }: { position: THREE.Vector3, rotation: THREE.Euler }) => {
+// Procedural Terrain for Luzern (Lake + Mountains)
+const LuzernTerrain = ({ opacity }: { opacity: number }) => {
+  const meshRef = useRef<THREE.Mesh>(null);
+  const { theme } = useTheme();
+
+  const geometry = useMemo(() => {
+    const geo = new THREE.PlaneGeometry(10, 10, 64, 64);
+    const noise2D = createNoise2D();
+
+    const positions = geo.attributes.position.array;
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+
+      // Create a lake in the center (flat), mountains on the edges
+      const distFromCenter = Math.sqrt(x * x + y * y);
+
+      if (distFromCenter < 2) {
+        // Lake Vierwaldstättersee area (mostly flat)
+        positions[i + 2] = noise2D(x * 0.5, y * 0.5) * 0.05;
+      } else {
+        // Mountains (Pilatus, Rigi)
+        const elevation = noise2D(x * 0.3, y * 0.3) * (distFromCenter - 2) * 0.8;
+        positions[i + 2] = elevation > 0 ? elevation : 0;
+      }
+    }
+    geo.computeVertexNormals();
+    return geo;
+  }, []);
+
+  return (
+    <group rotation={[-Math.PI / 2, 0, 0]}>
+      {/* Terrain Surface */}
+      <mesh ref={meshRef} geometry={geometry}>
+        <meshStandardMaterial
+          color={theme === 'dark' ? '#1e293b' : '#e2e8f0'}
+          roughness={0.8}
+          transparent
+          opacity={opacity}
+          wireframe={true}
+        />
+      </mesh>
+
+      {/* Lake Plane overlay */}
+      <mesh position={[0, 0, 0.02]}>
+        <circleGeometry args={[2, 32]} />
+        <meshBasicMaterial color="#3b82f6" transparent opacity={opacity * 0.4} />
+      </mesh>
+    </group>
+  );
+};
+
+
+const WireframeWasserturm = ({ position, rotation, scale = 0.15, opacity = 1 }: { position: THREE.Vector3, rotation: THREE.Euler, scale?: number, opacity?: number }) => {
   const towerRef = useRef<THREE.Group>(null);
   const material = useMemo(() => new THREE.MeshBasicMaterial({ color: '#3b82f6', wireframe: true, transparent: true, opacity: 0.8 }), []);
 
   useFrame((state) => {
     if (towerRef.current) {
-        // Delay the drop until the camera is getting closer (around 3.5 seconds into the 5s flight)
         const t = state.clock.elapsedTime;
-        const delay = 3.5;
+        const delay = 5.0; // Wait until deep dive transition is mostly done
         const duration = 1.5;
 
         const progress = Math.min(Math.max(t - delay, 0) / duration, 1);
-
-        // Easing function (cubic ease-out)
         const ease = 1 - Math.pow(1 - progress, 3);
 
-        towerRef.current.scale.setScalar(ease * 0.15); // Final scale is 0.15
+        towerRef.current.scale.setScalar(ease * scale);
 
-        // Small hover effect after landing
+        // Hover effect after landing
         if (progress === 1) {
-            towerRef.current.position.copy(position).add(
-               new THREE.Vector3().copy(position).normalize().multiplyScalar(Math.sin(t * 2) * 0.05)
-            );
+             towerRef.current.position.copy(position).add(
+                 new THREE.Vector3().copy(position).normalize().multiplyScalar(Math.sin(t * 2) * (scale * 0.3))
+             );
         } else {
-             // Drop in from very far out (Space -> Luzern)
-            const offset = (1 - ease) * 10;
-            towerRef.current.position.copy(position).add(
-               new THREE.Vector3().copy(position).normalize().multiplyScalar(offset)
-            );
+             // Drop in from above
+             const offset = (1 - ease) * (scale * 30);
+             towerRef.current.position.copy(position).add(
+                 new THREE.Vector3().copy(position).normalize().multiplyScalar(offset)
+             );
         }
     }
+  });
+
+  // Make material reactive to opacity prop
+  useFrame(() => {
+     material.opacity = opacity * 0.8;
   });
 
   return (
@@ -79,9 +135,14 @@ const WireframeWasserturm = ({ position, rotation }: { position: THREE.Vector3, 
 };
 
 
-const TechGlobe = () => {
+const SceneOrchestrator = () => {
   const globeRef = useRef<THREE.Group>(null);
+  const globeMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
+  const auraMaterialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const localSceneRef = useRef<THREE.Group>(null);
+
   const { theme } = useTheme();
+  const [flightPhase, setFlightPhase] = useState<'approaching' | 'transitioning' | 'local'>('approaching');
 
   // Load both day and night maps, plus topology
   const [nightMap, dayMap, bumpMap] = useTexture([
@@ -92,126 +153,129 @@ const TechGlobe = () => {
 
   const activeMap = theme === 'dark' ? nightMap : dayMap;
 
-  // Calculate Luzern position and the rotation needed so the tower points outwards
-  const luzernPos = useMemo(() => latLongToVector3(LUZERN_LAT, LUZERN_LON, GLOBE_RADIUS), []);
-  const luzernRotation = useMemo(() => {
-      // Create a quaternion that aligns the UP vector (Y-axis) with the surface normal vector at Luzern
-      const normal = luzernPos.clone().normalize();
+  // Calculate Luzern position and rotation on the globe
+  const luzernPosGlobe = useMemo(() => latLongToVector3(LUZERN_LAT, LUZERN_LON, GLOBE_RADIUS), []);
+  const luzernRotGlobe = useMemo(() => {
+      const normal = luzernPosGlobe.clone().normalize();
       const up = new THREE.Vector3(0, 1, 0);
       const quaternion = new THREE.Quaternion().setFromUnitVectors(up, normal);
-      const euler = new THREE.Euler().setFromQuaternion(quaternion);
-      return euler;
-  }, [luzernPos]);
+      return new THREE.Euler().setFromQuaternion(quaternion);
+  }, [luzernPosGlobe]);
 
-  // The cinematic camera handles the movement now. The globe can stay still (or spin very slowly).
-  useFrame((state) => {
-    if (globeRef.current) {
-        const t = state.clock.elapsedTime;
-        // Very slow idle rotation
-        globeRef.current.rotation.y = Math.sin(t * 0.1) * 0.05;
-    }
-  });
+  // Local Scene Center (0,0,0)
+  const luzernPosLocal = new THREE.Vector3(0, 0, 0);
+  const luzernRotLocal = new THREE.Euler(0, 0, 0);
 
-  return (
-    <group ref={globeRef}>
+  const TRANSITION_START = 3.5; // Seconds when globe starts fading
+  const LOCAL_START = 4.5;      // Seconds when local terrain starts appearing
 
-      {/* Realistic Theme-Aware Earth */}
-      <mesh>
-         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
-         <meshStandardMaterial
-            map={activeMap}
-            bumpMap={bumpMap}
-            bumpScale={0.05}
-            metalness={0.1}
-            roughness={0.8}
-            emissiveMap={theme === 'dark' ? activeMap : null}
-            emissive={theme === 'dark' ? new THREE.Color(0x444444) : new THREE.Color(0x000000)}
-            emissiveIntensity={theme === 'dark' ? 0.5 : 0}
-         />
-      </mesh>
-
-      {/* Very faint wireframe aura to keep it technical */}
-      <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS + 0.02, 32, 32]} />
-        <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.05} />
-      </mesh>
-
-      {/* Wasserturm Marker at Luzern */}
-      <WireframeWasserturm position={luzernPos} rotation={luzernRotation} />
-
-      {/* Highlight ring specifically over Luzern location */}
-      <mesh position={luzernPos} rotation={luzernRotation}>
-         <ringGeometry args={[0, 0.1, 16]} />
-         <meshBasicMaterial color="#3b82f6" transparent opacity={0.8} side={THREE.DoubleSide} />
-      </mesh>
-    </group>
-  );
-};
-
-const CinematicCamera = ({ luzernPos, onFlightEnd }: { luzernPos: THREE.Vector3, onFlightEnd: () => void }) => {
   useFrame((state) => {
     const t = state.clock.elapsedTime;
-    const flightDuration = 4.5;
 
-    if (t < flightDuration) {
-      // Flight phase: Start far away, swoop in
+    // --- CAMERA FLIGHT ---
+    if (t < LOCAL_START) {
+      if (flightPhase !== 'approaching') setFlightPhase('approaching');
+
       const startPos = new THREE.Vector3(0, 10, 20);
-
-      // Calculate an isometric, cinematic side-angle near Luzern
-      const normal = luzernPos.clone().normalize();
-
-      // A vector slightly to the right and slightly up from the normal
+      const normal = luzernPosGlobe.clone().normalize();
       const right = new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), normal).normalize();
       const up = new THREE.Vector3(0, 1, 0);
 
-      const targetPos = luzernPos.clone()
-        .add(normal.multiplyScalar(GLOBE_RADIUS * 0.4)) // Zoomed in distance
-        .add(right.multiplyScalar(GLOBE_RADIUS * 0.3)) // Offset to the right
-        .add(up.multiplyScalar(GLOBE_RADIUS * 0.2)); // Offset upwards
+      // Target position right above Luzern
+      const targetPos = luzernPosGlobe.clone()
+        .add(normal.multiplyScalar(GLOBE_RADIUS * 0.2))
+        .add(right.multiplyScalar(GLOBE_RADIUS * 0.1))
+        .add(up.multiplyScalar(GLOBE_RADIUS * 0.1));
 
-      // Smooth interpolation
-      const progress = Math.pow(t / flightDuration, 2.5); // Ease-in
+      const progress = Math.pow(t / LOCAL_START, 2.5); // Ease-in
       state.camera.position.lerpVectors(startPos, targetPos, progress);
+      state.camera.lookAt(luzernPosGlobe);
 
-      // Keep looking at Luzern during the flight
-      state.camera.lookAt(luzernPos);
-    } else if (t >= flightDuration && t < flightDuration + 0.1) {
-       // Trigger callback exactly once when flight finishes
-       onFlightEnd();
+    } else if (t >= LOCAL_START && t < LOCAL_START + 1.0) {
+      if (flightPhase !== 'transitioning') setFlightPhase('transitioning');
+
+      // Snap camera to local scene perspective
+      const localProgress = (t - LOCAL_START) / 1.0;
+
+      // Local isometric view
+      const localTargetPos = new THREE.Vector3(5, 5, 8);
+      state.camera.position.lerpVectors(state.camera.position, localTargetPos, localProgress);
+      state.camera.lookAt(0, 0, 0);
+    } else {
+      if (flightPhase !== 'local') setFlightPhase('local');
+    }
+
+    // --- FADE ANIMATIONS ---
+    if (t > TRANSITION_START && globeRef.current && globeMaterialRef.current && auraMaterialRef.current) {
+        // Fade out Globe
+        const fadeProgress = Math.min((t - TRANSITION_START) / 1.0, 1);
+        globeRef.current.scale.setScalar(1 + fadeProgress * 0.5); // Slightly swell before disappearing
+        globeMaterialRef.current.opacity = 1 - fadeProgress;
+        auraMaterialRef.current.opacity = (1 - fadeProgress) * 0.05;
+        globeMaterialRef.current.transparent = true;
     }
   });
-
-  return null;
-};
-
-export const TechGlobeScene = () => {
-  const luzernPos = useMemo(() => latLongToVector3(LUZERN_LAT, LUZERN_LON, GLOBE_RADIUS), []);
-  const [flightComplete, setFlightComplete] = useState(false);
 
   return (
     <>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
 
-      <TechGlobe />
-
-      {!flightComplete && (
-        <CinematicCamera luzernPos={luzernPos} onFlightEnd={() => setFlightComplete(true)} />
+      {/* MACRO SCENE: The Globe */}
+      {flightPhase !== 'local' && (
+        <group ref={globeRef}>
+          <mesh>
+             <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
+             <meshStandardMaterial
+                ref={globeMaterialRef}
+                map={activeMap}
+                bumpMap={bumpMap}
+                bumpScale={0.05}
+                metalness={0.1}
+                roughness={0.8}
+                emissiveMap={theme === 'dark' ? activeMap : null}
+                emissive={theme === 'dark' ? new THREE.Color(0x444444) : new THREE.Color(0x000000)}
+                emissiveIntensity={theme === 'dark' ? 0.5 : 0}
+             />
+          </mesh>
+          <mesh>
+            <sphereGeometry args={[GLOBE_RADIUS + 0.02, 32, 32]} />
+            <meshBasicMaterial ref={auraMaterialRef} color="#3b82f6" wireframe transparent opacity={0.05} />
+          </mesh>
+          <mesh position={luzernPosGlobe} rotation={luzernRotGlobe}>
+             <ringGeometry args={[0, 0.1, 16]} />
+             <meshBasicMaterial color="#3b82f6" transparent opacity={0.8} side={THREE.DoubleSide} />
+          </mesh>
+        </group>
       )}
 
-      {flightComplete && (
+      {/* MICRO SCENE: Local Luzern Terrain & Tower */}
+      {flightPhase !== 'approaching' && (
+        <group ref={localSceneRef}>
+           <LuzernTerrain opacity={flightPhase === 'local' ? 1 : 0.5} />
+           <WireframeWasserturm position={luzernPosLocal} rotation={luzernRotLocal} scale={1} opacity={flightPhase === 'local' ? 1 : 0} />
+        </group>
+      )}
+
+      {/* Handover to interactive controls after flight */}
+      {flightPhase === 'local' && (
         <OrbitControls
           enableZoom={true}
           enablePan={false}
           rotateSpeed={0.6}
           zoomSpeed={0.8}
-          target={luzernPos}
-          minDistance={GLOBE_RADIUS + 0.1}
-          maxDistance={GLOBE_RADIUS * 3}
+          target={[0, 0, 0]}
+          minDistance={2}
+          maxDistance={15}
+          maxPolarAngle={Math.PI / 2 - 0.1} // don't go under ground
           autoRotate
           autoRotateSpeed={0.5}
         />
       )}
     </>
   );
+};
+
+export const TechGlobeScene = () => {
+  return <SceneOrchestrator />;
 };
