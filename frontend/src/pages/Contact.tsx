@@ -3,6 +3,7 @@ import { PageWrapper } from '../components/layout/PageWrapper';
 import { motion } from 'framer-motion';
 import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
+import React from 'react';
 import Tilt from 'react-parallax-tilt';
 import { Canvas } from '@react-three/fiber';
 import { TechGlobeScene } from '../components/3d/TechGlobeScene';
@@ -58,9 +59,11 @@ const Contact = () => {
                 LOC: LUZERN_CH [47.0502° N, 8.3093° E]
               </div>
             </div>
-            <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-              <TechGlobeScene />
-            </Canvas>
+            <React.Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-accent"><span className="animate-pulse">Loading Map Data...</span></div>}>
+              <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
+                <TechGlobeScene />
+              </Canvas>
+            </React.Suspense>
           </motion.div>
         </div>
 

@@ -1,6 +1,6 @@
 import { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { useTexture } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Convert Lat/Lon to 3D Cartesian coordinates on a sphere
@@ -26,12 +26,14 @@ const WireframeWasserturm = ({ position, rotation }: { position: THREE.Vector3, 
 
   useFrame((state) => {
     if (towerRef.current) {
-        // Drop-in animation effect based on time
+        // Delay the drop until the camera is getting closer (around 3.5 seconds into the 5s flight)
         const t = state.clock.elapsedTime;
-        // Animation: starts high (scale 0), drops in and scales up within the first 2 seconds
-        const progress = Math.min(Math.max(t - 1, 0) / 1.5, 1); // Delay 1s, duration 1.5s
+        const delay = 3.5;
+        const duration = 1.5;
 
-        // Easing function (easeOutBounce or similar)
+        const progress = Math.min(Math.max(t - delay, 0) / duration, 1);
+
+        // Easing function (cubic ease-out)
         const ease = 1 - Math.pow(1 - progress, 3);
 
         towerRef.current.scale.setScalar(ease * 0.15); // Final scale is 0.15
@@ -42,8 +44,8 @@ const WireframeWasserturm = ({ position, rotation }: { position: THREE.Vector3, 
                new THREE.Vector3().copy(position).normalize().multiplyScalar(Math.sin(t * 2) * 0.05)
             );
         } else {
-             // Drop in from further out
-            const offset = (1 - ease) * 5;
+             // Drop in from very far out (Space -> Luzern)
+            const offset = (1 - ease) * 10;
             towerRef.current.position.copy(position).add(
                new THREE.Vector3().copy(position).normalize().multiplyScalar(offset)
             );
@@ -79,6 +81,11 @@ const WireframeWasserturm = ({ position, rotation }: { position: THREE.Vector3, 
 const TechGlobe = () => {
   const globeRef = useRef<THREE.Group>(null);
 
+  const [colorMap, bumpMap] = useTexture([
+    'https://unpkg.com/three-globe@2.31.1/example/img/earth-night.jpg',
+    'https://unpkg.com/three-globe@2.31.1/example/img/earth-topology.png'
+  ]);
+
   // Calculate Luzern position and the rotation needed so the tower points outwards
   const luzernPos = useMemo(() => latLongToVector3(LUZERN_LAT, LUZERN_LON, GLOBE_RADIUS), []);
   const luzernRotation = useMemo(() => {
@@ -91,45 +98,37 @@ const TechGlobe = () => {
       return obj.rotation;
   }, [luzernPos]);
 
+  // The cinematic camera handles the movement now. The globe can stay still (or spin very slowly).
   useFrame((state) => {
     if (globeRef.current) {
         const t = state.clock.elapsedTime;
-
-        // Initial cinematic rotation: spin the globe to center Europe
-        // Europe is roughly facing camera when Y rot is ~ -1.5 rad
-        const targetRotY = -1.2;
-        const targetRotX = 0.3;
-
-        if (t < 3) {
-            // Smoothly interpolate to the target position
-            globeRef.current.rotation.y = THREE.MathUtils.lerp(Math.PI, targetRotY, t / 3);
-            globeRef.current.rotation.x = THREE.MathUtils.lerp(0, targetRotX, t / 3);
-        } else {
-            // Very slow idle rotation after landing
-            globeRef.current.rotation.y = targetRotY + Math.sin((t - 3) * 0.2) * 0.1;
-            globeRef.current.rotation.x = targetRotX + Math.cos((t - 3) * 0.1) * 0.05;
-        }
+        // Very slow idle rotation
+        globeRef.current.rotation.y = Math.sin(t * 0.1) * 0.05;
     }
   });
 
   return (
     <group ref={globeRef}>
-      {/* Outer Wireframe Globe */}
+
+      {/* Realistic Night Earth */}
       <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS, 32, 32]} />
-        <meshBasicMaterial color="#334155" wireframe transparent opacity={0.3} />
+         <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
+         <meshStandardMaterial
+            map={colorMap}
+            bumpMap={bumpMap}
+            bumpScale={0.05}
+            metalness={0.1}
+            roughness={0.8}
+            emissiveMap={colorMap}
+            emissive={new THREE.Color(0x444444)}
+            emissiveIntensity={0.5}
+         />
       </mesh>
 
-      {/* Inner Core (dark, solid) */}
+      {/* Very faint wireframe aura to keep it technical */}
       <mesh>
-         <sphereGeometry args={[GLOBE_RADIUS * 0.98, 32, 32]} />
-         <meshBasicMaterial color="#0f172a" />
-      </mesh>
-
-      {/* Lat/Lon Grid lines effect */}
-      <mesh>
-        <sphereGeometry args={[GLOBE_RADIUS + 0.01, 16, 16]} />
-        <meshBasicMaterial color="#1e293b" wireframe transparent opacity={0.15} />
+        <sphereGeometry args={[GLOBE_RADIUS + 0.02, 32, 32]} />
+        <meshBasicMaterial color="#3b82f6" wireframe transparent opacity={0.05} />
       </mesh>
 
       {/* Wasserturm Marker at Luzern */}
@@ -144,18 +143,48 @@ const TechGlobe = () => {
   );
 };
 
+const CinematicCamera = ({ luzernPos }: { luzernPos: THREE.Vector3 }) => {
+  useFrame((state) => {
+    const t = state.clock.elapsedTime;
+
+    if (t < 5) {
+      // Flight phase: Start far away, swoop in
+      const startPos = new THREE.Vector3(0, 5, 20);
+
+      // We want to end up looking directly at Luzern, slightly zoomed out
+      // Since Luzern is at luzernPos, let's place the camera a bit further out on that same vector
+      const targetPos = luzernPos.clone().normalize().multiplyScalar(GLOBE_RADIUS + 2.5);
+
+      // Smooth interpolation
+      const progress = Math.pow(t / 5, 2); // Accelerating ease
+      state.camera.position.lerpVectors(startPos, targetPos, progress);
+      state.camera.lookAt(0, 0, 0);
+    } else {
+      // Idle phase: very slow sway around the target position
+      const basePos = luzernPos.clone().normalize().multiplyScalar(GLOBE_RADIUS + 2.5);
+      // Start sin/cos from 0 to prevent harsh jump at t = 5
+      state.camera.position.x = basePos.x + Math.sin((t - 5) * 0.5) * 0.2;
+      state.camera.position.y = basePos.y + (1 - Math.cos((t - 5) * 0.3)) * 0.2;
+      state.camera.lookAt(0, 0, 0);
+    }
+  });
+
+  return null;
+};
+
 export const TechGlobeScene = () => {
+  const luzernPos = useMemo(() => latLongToVector3(LUZERN_LAT, LUZERN_LON, GLOBE_RADIUS), []);
+
   return (
     <>
       <ambientLight intensity={0.2} />
-      <TechGlobe />
+      <directionalLight position={[10, 10, 5]} intensity={1} />
 
-      {/* User interaction: allowed to spin but auto-returns roughly to center (handled manually or just let them spin) */}
-      <OrbitControls
-        enableZoom={false}
-        enablePan={false}
-        rotateSpeed={0.5}
-      />
+      <TechGlobe />
+      <CinematicCamera luzernPos={luzernPos} />
+
+      {/* OrbitControls disabled initially to allow cinematic flight, but we let users interact after */}
+      {/* We handle interaction manually via camera path now for a true "flight" feel */}
     </>
   );
 };
