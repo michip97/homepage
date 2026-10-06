@@ -6,7 +6,7 @@ import axios from 'axios';
 import React from 'react';
 import Tilt from 'react-parallax-tilt';
 import { Canvas } from '@react-three/fiber';
-import { TechGlobeScene } from '../components/3d/TechGlobeScene';
+import { LucerneScene } from '../components/lucerne/LucerneScene';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -59,9 +59,9 @@ const Contact = () => {
                 LOC: LUZERN_CH [47.0502° N, 8.3093° E]
               </div>
             </div>
-            <React.Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-accent"><span className="animate-pulse">Loading Map Data...</span></div>}>
-              <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-                <TechGlobeScene />
+            <React.Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-accent"><span className="animate-pulse">Loading GIS Data...</span></div>}>
+              <Canvas camera={{ position: [0, 5, 10], fov: 45 }}>
+                <LucerneScene />
               </Canvas>
             </React.Suspense>
           </motion.div>

@@ -144,3 +144,4 @@ vite.config.ts.timestamp-*
 backend/bin/
 backend/obj/
 frontend/node_modules/
+tools/geodata/venv
