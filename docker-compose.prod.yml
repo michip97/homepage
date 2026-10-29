@@ -43,14 +43,14 @@ services:
     image: ghcr.io/${REPO}-backend:latest
     container_name: portfolio-backend-prod
     restart: always
-    depends_on:
-      - db
     environment:
-      - ConnectionStrings__DefaultConnection=Host=db;Database=${POSTGRES_DB:-portfolio_db};Username=${POSTGRES_USER:-portfolio_user};Password=${POSTGRES_PASSWORD:-portfolio_secure_password}
+      - ConnectionStrings__DefaultConnection=Host=postgres-shared;Database=${POSTGRES_DB:-portfolio_db};Username=${POSTGRES_USER:-portfolio_user};Password=${POSTGRES_PASSWORD:-portfolio_secure_password}
       - ASPNETCORE_ENVIRONMENT=Production
       - DownloadPassword=${DOWNLOAD_PASSWORD:-securepassword}
     networks:
       - portfolio-network
+      - shared-database
+
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=Host(`${DOMAIN}`) && PathPrefix(`/api`)"
