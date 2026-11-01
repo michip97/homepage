@@ -1,24 +1,24 @@
 import { PageWrapper } from '../components/layout/PageWrapper';
 import { motion } from 'framer-motion';
-import { ArrowRight, Terminal, Cloud, Server, Users, Code, Database, Globe } from 'lucide-react';
+import { ArrowRight, Terminal, Users, Network, Cpu, Shield, Layers } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Typewriter } from 'react-simple-typewriter';
 import Tilt from 'react-parallax-tilt';
 
 const Home = () => {
   const skills = [
-    { icon: Cloud, title: 'Cloud & Architecture', desc: 'Azure, AKS, Scalable Systems' },
-    { icon: Server, title: 'Backend & Fullstack', desc: '.NET/C#, REST, React, PostgreSQL' },
-    { icon: Terminal, title: 'DevOps & Platform', desc: 'Kubernetes, CI/CD, Linux' },
-    { icon: Users, title: 'Leadership', desc: 'Tech Lead, Mentorship, Strategy' },
+    { icon: Terminal, title: 'Linux & Infrastructure', desc: 'Complex Linux Architectures, Deep Troubleshooting' },
+    { icon: Layers, title: 'Container Platforms', desc: 'Kubernetes, Cluster Architecture, Lifecycle Management' },
+    { icon: Network, title: 'Automation & Observability', desc: 'Prometheus, CI/CD Pipelines, Infrastructure as Code' },
+    { icon: Users, title: 'Architecture & Leadership', desc: 'Architecture Decisions, Task Delegation, End-to-End Projects' },
   ];
 
   const floatingBadges = [
-    { icon: Cloud, text: 'Azure', color: 'text-blue-500', delay: 0 },
-    { icon: Code, text: '.NET / C#', color: 'text-purple-500', delay: 1.5 },
-    { icon: Terminal, text: 'Kubernetes', color: 'text-blue-400', delay: 3 },
-    { icon: Globe, text: 'React', color: 'text-cyan-400', delay: 0.5 },
-    { icon: Database, text: 'PostgreSQL', color: 'text-indigo-500', delay: 2 },
+    { icon: Terminal, text: 'Linux', color: 'text-orange-500', delay: 0 },
+    { icon: Layers, text: 'Kubernetes', color: 'text-blue-500', delay: 1.5 },
+    { icon: Network, text: 'Prometheus', color: 'text-orange-400', delay: 3 },
+    { icon: Cpu, text: 'Automation', color: 'text-cyan-400', delay: 0.5 },
+    { icon: Shield, text: 'Open Source', color: 'text-green-500', delay: 2 },
   ];
 
   const containerVariants = {
@@ -50,15 +50,7 @@ const Home = () => {
             transition={{ duration: 0.7, ease: "easeOut" }}
             className="text-center lg:text-left z-10"
           >
-            <div className="inline-flex items-center px-4 py-2 rounded-full bg-accent/10 text-accent font-semibold tracking-wide uppercase text-sm mb-6 border border-accent/20">
-              <span className="relative flex h-3 w-3 mr-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
-              </span>
-              Available for New Opportunities
-            </div>
-
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-textPrimary tracking-tight mb-4 leading-tight">
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-textPrimary tracking-tight mb-4 leading-tight mt-12">
               Hi, I'm <br className="hidden lg:block"/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-500">
                 Michael Portmann
@@ -69,7 +61,7 @@ const Home = () => {
               I am a{' '}
               <span className="text-accent">
                 <Typewriter
-                  words={['Software Engineer', 'Cloud Architect', 'DevOps Enthusiast', 'Tech Lead']}
+                  words={['Senior System Engineer', 'Kubernetes Expert', 'Linux Enthusiast', 'Open Source Advocate']}
                   loop={0}
                   cursor
                   cursorStyle='_'
@@ -81,7 +73,7 @@ const Home = () => {
             </div>
 
             <p className="max-w-xl text-lg text-textSecondary mb-10 leading-relaxed mx-auto lg:mx-0">
-              I specialize in designing and building highly scalable cloud platforms, resilient microservices, and modern web applications. Bridging the gap between code and infrastructure.
+              I specialize in engineering complex Linux architectures and highly available Kubernetes container platforms. As a senior engineer, I take ownership from end-to-end: driving architectural decisions, delegating tasks effectively, overseeing implementation, and managing the complete lifecycle of robust infrastructure solutions.
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -116,7 +108,7 @@ const Home = () => {
               {/* Main Image Frame */}
               <div className="relative w-80 h-80 rounded-[2rem] border border-borderBase shadow-2xl bg-bgSecondary/80 backdrop-blur-xl flex items-center justify-center overflow-hidden group">
                   <div className="absolute inset-0 bg-gradient-to-br from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 z-20"></div>
-                  <Code className="w-32 h-32 text-textSecondary/50 group-hover:scale-110 group-hover:text-accent transition-all duration-700" />
+                  <Terminal className="w-32 h-32 text-textSecondary/50 group-hover:scale-110 group-hover:text-accent transition-all duration-700" />
               </div>
             </Tilt>
 
@@ -161,7 +153,7 @@ const Home = () => {
 
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-textPrimary mb-4">Core Competencies</h2>
-            <p className="text-textSecondary max-w-2xl mx-auto">From enterprise cloud infrastructure to full-stack application development.</p>
+            <p className="text-textSecondary max-w-2xl mx-auto">From complex Linux architectures and container platforms to full-lifecycle infrastructure management.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
