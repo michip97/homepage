@@ -7,10 +7,10 @@ import Tilt from 'react-parallax-tilt';
 
 const Home = () => {
   const skills = [
-    { icon: Terminal, title: 'Linux & Infrastructure', desc: 'Complex Linux Architectures, Deep Troubleshooting' },
-    { icon: Layers, title: 'Container Platforms', desc: 'Kubernetes, Cluster Architecture, Lifecycle Management' },
-    { icon: Network, title: 'Automation & Observability', desc: 'Prometheus, CI/CD Pipelines, Infrastructure as Code' },
-    { icon: Users, title: 'Architecture & Leadership', desc: 'Architecture Decisions, Task Delegation, End-to-End Projects' },
+    { icon: Layers, title: 'Container & Kubernetes Engineering', desc: 'Architecture, deployment, and production operation of Kubernetes clusters (AKS). Traffic routing & load balancing via NGINX Ingress, container storage, image registries, and microservice orchestration.' },
+    { icon: Terminal, title: 'Linux, CI/CD & Automation', desc: 'Linux system administration (focus: RHEL & RHCSA in Q1). Automated build and deployment pipelines using Jenkins. Infrastructure as Code and configuration management with Terraform and Ansible.' },
+    { icon: Shield, title: 'Observability, Networking & Security', desc: 'Cluster monitoring, metrics, and logs. Network architecture, message queues, and DB integration. IT Operation & Security foundation (B.Sc. HSLU: hardening, access control, root-cause analysis).' },
+    { icon: Users, title: 'Software Background & Leadership', desc: 'Multi-year production experience in C# / .NET — understanding platform requirements from a developer perspective. Technical roadmap planning, team coordination, and structured stakeholder communication.' },
   ];
 
   const floatingBadges = [
@@ -61,7 +61,12 @@ const Home = () => {
               I am a{' '}
               <span className="text-accent">
                 <Typewriter
-                  words={['Senior System Engineer', 'Kubernetes Expert', 'Linux Enthusiast', 'Open Source Advocate']}
+                  words={[
+                    'Linux & Kubernetes System Engineer',
+                    'Cloud Platform Architect (AKS)',
+                    'Infrastructure & CI/CD Automation',
+                    'IT Operations & Security (B.Sc.)'
+                  ]}
                   loop={0}
                   cursor
                   cursorStyle='_'
@@ -72,9 +77,16 @@ const Home = () => {
               </span>
             </div>
 
-            <p className="max-w-xl text-lg text-textSecondary mb-10 leading-relaxed mx-auto lg:mx-0">
-              I specialize in engineering complex Linux architectures and highly available Kubernetes container platforms. As a senior engineer, I take ownership from end-to-end: driving architectural decisions, delegating tasks effectively, overseeing implementation, and managing the complete lifecycle of robust infrastructure solutions.
-            </p>
+            <div className="max-w-xl text-lg text-textSecondary mb-6 leading-relaxed mx-auto lg:mx-0">
+              <p className="mb-4">
+                I design, automate, and operate resilient container and Linux platforms. Combining hands-on Kubernetes engineering and IT security with a strong background in technical project management, I bridge the gap between complex infrastructure and reliable production workloads.
+              </p>
+              <div className="bg-accent/10 border-l-4 border-accent p-4 rounded-r-lg">
+                <p className="text-sm font-medium text-textPrimary">
+                  Currently preparing for the <strong>Red Hat Certified System Administrator (RHCSA)</strong> exam (completion in Q1) — back in Switzerland end of December and ready for new challenges in Enterprise Linux & Kubernetes engineering.
+                </p>
+              </div>
+            </div>
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link to="/projects" className="inline-flex items-center justify-center px-8 py-4 border border-transparent text-base font-bold rounded-xl text-white bg-accent hover:bg-accentHover shadow-lg hover:shadow-accent/50 transition-all duration-300 hover:-translate-y-1">
@@ -180,6 +192,72 @@ const Home = () => {
                     <p className="text-textSecondary leading-relaxed">{skill.desc}</p>
                   </div>
                 </motion.div>
+
+
+        {/* Case Study */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-100px" }}
+          className="mt-32 relative"
+        >
+          <div className="bg-bgSecondary/30 backdrop-blur-md rounded-3xl border border-borderBase p-8 lg:p-12 overflow-hidden relative group hover:border-accent/40 transition-colors duration-500 shadow-2xl">
+            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"></div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 relative z-10">
+              <div className="lg:col-span-1 flex flex-col justify-center">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 text-accent text-sm font-bold mb-6 w-fit">
+                  <span className="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                  Featured Architecture
+                </div>
+                <h2 className="text-3xl font-extrabold text-textPrimary mb-4">Designing & Operating the "PSE Cloud"</h2>
+                <div className="mb-6">
+                  <p className="text-accent font-bold">IT System Engineer & Lead Software Developer</p>
+                  <p className="text-sm text-textSecondary">PSE Solutions GmbH (07/2022 – Present)</p>
+                </div>
+                <p className="text-textSecondary leading-relaxed mb-8">
+                  End-to-end conception, implementation, and production operation of a scalable Kubernetes cloud platform hosting distributed microservices.
+                </p>
+                <Link to="/projects" className="inline-flex items-center text-accent hover:text-accentHover font-bold transition-colors w-fit group/link">
+                  View full project details <ArrowRight className="ml-2 w-4 h-4 group-hover/link:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-bgPrimary/50 p-6 rounded-2xl border border-borderBase">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4">
+                    <Layers className="w-5 h-5 text-blue-500" />
+                  </div>
+                  <h3 className="font-bold text-textPrimary mb-2">Cluster & Traffic Engineering</h3>
+                  <p className="text-sm text-textSecondary leading-relaxed">Designed and managed the production <strong>AKS</strong> cluster, implementing <strong>NGINX Ingress</strong> for load balancing and routing, alongside private container registries and persistent storage.</p>
+                </div>
+                <div className="bg-bgPrimary/50 p-6 rounded-2xl border border-borderBase">
+                  <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center mb-4">
+                    <Cpu className="w-5 h-5 text-orange-500" />
+                  </div>
+                  <h3 className="font-bold text-textPrimary mb-2">CI/CD & Automation</h3>
+                  <p className="text-sm text-textSecondary leading-relaxed">Built automated <strong>Jenkins</strong> build and release pipelines and managed cloud/Linux infrastructure reproducibly using <strong>Terraform</strong> and <strong>Ansible</strong>.</p>
+                </div>
+                <div className="bg-bgPrimary/50 p-6 rounded-2xl border border-borderBase">
+                  <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center mb-4">
+                    <Network className="w-5 h-5 text-green-500" />
+                  </div>
+                  <h3 className="font-bold text-textPrimary mb-2">Distributed Systems</h3>
+                  <p className="text-sm text-textSecondary leading-relaxed">Integrated message queues, diverse database systems, and secure inter-service communication protocols while leading 3rd-level troubleshooting in production.</p>
+                </div>
+                <div className="bg-bgPrimary/50 p-6 rounded-2xl border border-borderBase">
+                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4">
+                    <Users className="w-5 h-5 text-purple-500" />
+                  </div>
+                  <h3 className="font-bold text-textPrimary mb-2">Technical Ownership</h3>
+                  <p className="text-sm text-textSecondary leading-relaxed">Owned the technical roadmap, sprint/release scheduling, and task coordination across the engineering team.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
               </Tilt>
             ))}
           </div>
