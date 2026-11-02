@@ -5,8 +5,6 @@ import { Send, MapPin, Mail, Phone } from 'lucide-react';
 import axios from 'axios';
 import React from 'react';
 import Tilt from 'react-parallax-tilt';
-import { Canvas } from '@react-three/fiber';
-import { TechGlobeScene } from '../components/3d/TechGlobeScene';
 
 const Contact = () => {
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
@@ -30,40 +28,17 @@ const Contact = () => {
     <PageWrapper>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-        {/* Interactive 3D Hero Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+        {/* Interactive Hero Section */}
+        <div className="mb-16 max-w-3xl mx-auto text-center">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
-            className="text-center lg:text-left"
           >
             <h1 className="text-5xl font-extrabold text-textPrimary mb-6">Let's build something <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-purple-500">amazing.</span></h1>
             <p className="text-xl text-textSecondary mb-6 leading-relaxed">
-              Based in the beautiful city of Luzern. Whether you have a question about cloud architecture, a project proposal, or just want to say hi, I'll try my best to get back to you!
+              Based in the beautiful city of Luzern. Whether you have a question about Kubernetes architectures, infrastructure automation, or just want to say hi, I'd love to connect!
             </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: "easeOut" }}
-            className="h-[400px] w-full rounded-3xl overflow-hidden border border-borderBase bg-bgPrimary shadow-[0_0_50px_rgba(59,130,246,0.1)] relative cursor-grab active:cursor-grabbing"
-          >
-            <div className="absolute top-4 left-4 z-10 flex items-center space-x-2">
-              <span className="relative flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-accent"></span>
-              </span>
-              <div className="px-3 py-1 bg-bgPrimary/80 backdrop-blur-md rounded-full text-xs font-mono text-textSecondary border border-borderBase">
-                LOC: LUZERN_CH [47.0502° N, 8.3093° E]
-              </div>
-            </div>
-            <React.Suspense fallback={<div className="absolute inset-0 flex items-center justify-center text-accent"><span className="animate-pulse">Loading Map Data...</span></div>}>
-              <Canvas camera={{ position: [0, 0, 8], fov: 50 }}>
-                <TechGlobeScene />
-              </Canvas>
-            </React.Suspense>
           </motion.div>
         </div>
 

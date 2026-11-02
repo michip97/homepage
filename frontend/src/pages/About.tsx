@@ -5,15 +5,15 @@ import { Briefcase, GraduationCap } from 'lucide-react';
 const About = () => {
   const experiences = [
     {
-      role: 'Lead Software Engineer / IT System Engineer',
+      role: 'IT System Engineer / Lead Architect',
       company: 'PSE Solutions GmbH, Rothenburg',
       period: '2020 - Present',
       details: [
-        'Technical overall responsibility for the Azure/AKS cloud platform',
-        'Architecture design and development of distributed .NET services',
-        'Implementation of high-performance REST and gRPC interfaces',
-        'Introduction and optimization of CI/CD pipelines',
-        'Responsible for an external developer in Brazil and coordination with international partners',
+        'Technical overall responsibility and lifecycle management for the Azure/AKS cloud platform',
+        'End-to-End architectural design of distributed cloud infrastructure and services',
+        'Setup, optimization, and automation of complex CI/CD pipelines and infrastructure deployments',
+        'Extensive experience with Kubernetes cluster operations, monitoring, and scaling',
+        'Task delegation and leadership for external developers and coordination with international partners',
       ],
     },
     {
@@ -53,9 +53,12 @@ const About = () => {
         >
           <h1 className="text-4xl font-bold text-textPrimary mb-6">About Me</h1>
           <p className="text-lg text-textSecondary leading-relaxed">
-            I am a young, highly motivated Software and DevOps Engineer from Luzern, Switzerland.
-            My passion lies in open-source technologies, modern IT infrastructure, and building scalable cloud applications.
-            Beyond my technical skills, I am known for my energy, initiative, and the joy I bring to my work. I thrive on taking ownership, value a collaborative team environment, and possess strong analytical skills.
+            I am a highly motivated Senior System Engineer from Luzern, Switzerland.
+            I am absolutely passionate about Linux and deeply enthusiastic about the Open Source ecosystem.
+            I have a strong drive to support organizations in migrating from proprietary systems to robust, open-source solutions.
+            Currently, I am actively preparing for the RHCSA (Red Hat Certified System Administrator) certification in my private time.
+            <br/><br/>
+            I bring strong resilience, high discipline, and a strong work ethic. I can work very independently, but I am also highly social and truly value the exchange with colleagues in a great team culture.
           </p>
         </motion.div>
 
@@ -119,10 +122,10 @@ const About = () => {
           viewport={{ once: true }}
           className="bg-bgSecondary p-8 rounded-2xl border border-borderBase"
         >
-          <h2 className="text-2xl font-bold text-textPrimary mb-4">Beyond the Code</h2>
+          <h2 className="text-2xl font-bold text-textPrimary mb-4">Soft Skills & Personal Life</h2>
           <p className="text-textSecondary leading-relaxed">
-            When I'm not architecting cloud systems or writing C# code, I believe in maintaining a healthy work-life balance.
-            I enjoy spending time in nature, exploring new technologies as a hobby, and engaging in sports. Coming from a building technology background, I still appreciate the intersection of physical infrastructure and digital automation.
+            Beyond managing infrastructure and containers, I have well-developed soft skills that might not fit the typical "system nerd" cliché.
+            I have a well-trained physique, do a lot of sports, and travel extensively. I believe in maintaining a healthy work-life balance and appreciate companies that support home office, team events, and a strong corporate culture.
           </p>
         </motion.div>
       </div>
