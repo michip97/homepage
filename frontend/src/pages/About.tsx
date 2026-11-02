@@ -5,9 +5,9 @@ import { Briefcase, GraduationCap } from 'lucide-react';
 const About = () => {
   const experiences = [
     {
-      role: 'IT System Engineer / Lead Architect',
+      role: 'IT System Engineer & Lead Software Developer',
       company: 'PSE Solutions GmbH, Rothenburg',
-      period: '2020 - Present',
+      period: '07/2022 - Present',
       details: [
         'Technical overall responsibility and lifecycle management for the Azure/AKS cloud platform',
         'End-to-End architectural design of distributed cloud infrastructure and services',
@@ -17,28 +17,34 @@ const About = () => {
       ],
     },
     {
-      role: 'Junior Project Manager Heating/Cooling',
-      company: 'Amstein + Walthert AG, Zürich',
-      period: '2019 - 2020',
+      role: 'Junior Project Manager HVAC / Building Technology',
+      company: 'Amstein + Walthert AG, Zurich',
+      period: '12/2019 - 06/2022',
       details: ['Project management and planning for building technology.'],
     },
     {
-      role: 'Building Technology Planner (Heating)',
-      company: 'Fredy Häfliger AG, Küssnacht am Rigi',
-      period: '2014 - 2018',
-      details: ['Drafting and planning of heating systems.'],
+      role: 'Military Service (Single-Term Conscript / Durchdiener, Infantry)',
+      company: 'Swiss Armed Forces, Bern',
+      period: '2019',
+      details: ['Service as a single-term conscript.'],
+    },
+    {
+      role: 'Building Systems Planner HVAC',
+      company: 'Küssnacht am Rigi & Lucerne',
+      period: '08/2014 - 12/2018',
+      details: ['Drafting and planning of heating systems (incl. Technical Federal Vocational Baccalaureate / Berufsmatura 2015-2018).'],
     },
   ];
 
   const education = [
     {
-      degree: 'B.Sc. Computer Science (Major in IT Operations & Security)',
-      school: 'Hochschule Luzern, Rotkreuz',
+      degree: 'B.Sc. in Computer Science (Major in IT Operation & Security)',
+      school: 'Lucerne University of Applied Sciences and Arts (HSLU), Rotkreuz',
       period: '2020 - 2024',
     },
     {
-      degree: 'Vocational Baccalaureate (Technology)',
-      school: 'BBZW, Luzern',
+      degree: 'Technical Federal Vocational Baccalaureate / Berufsmatura',
+      school: 'BBZW, Lucerne',
       period: '2015 - 2018',
     },
   ];
@@ -53,12 +59,11 @@ const About = () => {
         >
           <h1 className="text-4xl font-bold text-textPrimary mb-6">About Me</h1>
           <p className="text-lg text-textSecondary leading-relaxed">
-            I am a highly motivated Senior System Engineer from Luzern, Switzerland.
-            I am absolutely passionate about Linux and deeply enthusiastic about the Open Source ecosystem.
-            I have a strong drive to support organizations in migrating from proprietary systems to robust, open-source solutions.
-            Currently, I am actively preparing for the RHCSA (Red Hat Certified System Administrator) certification in my private time.
+            <strong>From Engineering Project Management to Cloud Platforms:</strong><br/>
+            My professional journey started in building systems engineering and as a Junior Project Manager at Amstein + Walthert AG in Zurich. That role taught me how to plan complex technical systems from scratch, manage strict timelines, and communicate clearly with clients and stakeholders. While completing my B.Sc. in Computer Science (Major in <em>IT Operation & Security</em>) at HSLU, I transitioned fully into system engineering and cloud architecture at PSE Solutions GmbH, taking ownership of our Kubernetes platform.
             <br/><br/>
-            I bring strong resilience, high discipline, and a strong work ethic. I can work very independently, but I am also highly social and truly value the exchange with colleagues in a great team culture.
+            <strong>Continuous Learning & RedHat Focus:</strong><br/>
+            Right now, I am taking a planned sabbatical until the end of December by compensating accrued overtime to travel and dedicate focused self-study time to the <strong>Red Hat Certified System Administrator (RHCSA)</strong> exam (scheduled for Q1). When I commit to a technology ecosystem like Enterprise Linux and Kubernetes, I go all-in.
           </p>
         </motion.div>
 
@@ -122,11 +127,18 @@ const About = () => {
           viewport={{ once: true }}
           className="bg-bgSecondary p-8 rounded-2xl border border-borderBase"
         >
-          <h2 className="text-2xl font-bold text-textPrimary mb-4">Soft Skills & Personal Life</h2>
-          <p className="text-textSecondary leading-relaxed">
-            Beyond managing infrastructure and containers, I have well-developed soft skills that might not fit the typical "system nerd" cliché.
-            I have a well-trained physique, do a lot of sports, and travel extensively. I believe in maintaining a healthy work-life balance and appreciate companies that support home office, team events, and a strong corporate culture.
-          </p>
+          <h2 className="text-2xl font-bold text-textPrimary mb-4">Soft Skills, Mindset & Personal Life</h2>
+          <div className="text-textSecondary leading-relaxed space-y-4">
+            <p>
+              <strong>End-to-End Ownership:</strong> Structured, self-driven, and goal-oriented — I enjoy planning complex initiatives and seeing them through from initial concept to stable operation.
+            </p>
+            <p>
+              <strong>Team Player & Communicator:</strong> Strong interpersonal skills, transparent communication, and experience coordinating technical teams and advising stakeholders.
+            </p>
+            <p>
+              <strong>Athletic Ambition & Balance:</strong> Outside of IT, I am an ambitious athlete and value a healthy, active lifestyle and clear work-life balance — giving me the energy, discipline, and composure needed when production systems get demanding.
+            </p>
+          </div>
         </motion.div>
       </div>
     </PageWrapper>
