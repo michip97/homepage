@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - development
 
 env:
   REGISTRY: ghcr.io
@@ -62,7 +63,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "docker-compose.prod.yml"
-          target: "/opt/portfolio"
+          target: ${{ github.ref == 'refs/heads/main' && '/opt/portfolio-prod' || '/opt/portfolio-test' }}
 
       - name: Deploy on VPS
         uses: appleboy/ssh-action@v1.2.0
@@ -72,7 +73,7 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DOWNLOAD_PASSWORD: ${{ secrets.DOWNLOAD_PASSWORD }}
-          DOMAIN: ${{ secrets.DOMAIN }}
+          DOMAIN: ${{ github.ref == 'refs/heads/main' && 'michaelportmann.ch' || 'test.michaelportmann.ch' }}
           ACME_EMAIL: ${{ secrets.ACME_EMAIL }}
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -82,7 +83,23 @@ jobs:
           script: |
             set -eu
 
-            cd /opt/portfolio
+            if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+              TARGET_DIR="/opt/portfolio-prod"
+              export BACKEND_CONTAINER_NAME="portfolio-backend-prod"
+              export FRONTEND_CONTAINER_NAME="portfolio-frontend-prod"
+              export ROUTER_PREFIX="prod"
+              SERVICES_TO_START="traefik backend frontend"
+              # Ensure the network exists before traefik is started, so test deployment doesn't fail
+              docker network create portfolio-network || true
+            else
+              TARGET_DIR="/opt/portfolio-test"
+              export BACKEND_CONTAINER_NAME="portfolio-backend-test"
+              export FRONTEND_CONTAINER_NAME="portfolio-frontend-test"
+              export ROUTER_PREFIX="test"
+              SERVICES_TO_START="backend frontend"
+            fi
+
+            cd $TARGET_DIR
 
             export REPO="$(printf '%s' "$GITHUB_REPOSITORY_NAME" | tr '[:upper:]' '[:lower:]')"
             export POSTGRES_USER="portfolio_user"
@@ -96,10 +113,12 @@ jobs:
             # Verify the PostgreSQL server is ready
             docker exec postgres-shared pg_isready -U postgres_admin -d postgres
 
-            # Prepare Let's Encrypt storage
-            mkdir -p letsencrypt
-            touch letsencrypt/acme.json
-            chmod 600 letsencrypt/acme.json
+            if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+              # Prepare Let's Encrypt storage
+              mkdir -p letsencrypt
+              touch letsencrypt/acme.json
+              chmod 600 letsencrypt/acme.json
+            fi
 
             # Authenticate to GitHub Container Registry
             printf '%s' "$GHCR_TOKEN" |
@@ -109,13 +128,13 @@ jobs:
             docker compose -f docker-compose.prod.yml config -q
 
             # Pull updated images
-            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml pull $SERVICES_TO_START
 
             # Recreate application containers and remove obsolete services
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker compose -p "portfolio-${ROUTER_PREFIX}" -f docker-compose.prod.yml up -d --remove-orphans $SERVICES_TO_START
 
             # Show resulting status
-            docker compose -f docker-compose.prod.yml ps
+            docker compose -p "portfolio-${ROUTER_PREFIX}" -f docker-compose.prod.yml ps
 
             # Log out and clean up unused images
             docker logout ghcr.io
