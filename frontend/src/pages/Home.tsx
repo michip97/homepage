@@ -168,7 +168,7 @@ const Home = () => {
             <p className="text-textSecondary max-w-2xl mx-auto">From complex Linux architectures and container platforms to full-lifecycle infrastructure management.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 items-start">
             {skills.map((skill, index) => (
               <Tilt
                 key={index}
@@ -178,11 +178,11 @@ const Home = () => {
                 glareMaxOpacity={0.15}
                 glareColor="var(--accent)"
                 glarePosition="all"
-                className="h-full rounded-2xl"
+                className="rounded-2xl"
               >
                 <motion.div
                   variants={itemVariants}
-                  className="h-full p-8 rounded-2xl border border-borderBase bg-bgSecondary/50 backdrop-blur-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] hover:border-accent/30 transition-all duration-300 group relative overflow-hidden"
+                  className="p-8 rounded-2xl border border-borderBase bg-bgSecondary/50 backdrop-blur-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.12)] dark:hover:shadow-[0_8px_30px_rgba(37,99,235,0.1)] hover:border-accent/30 transition-all duration-300 group relative overflow-hidden h-full"
                 >
                   <div className="relative z-10">
                     <div className="w-14 h-14 rounded-xl bg-bgPrimary border border-borderBase flex items-center justify-center mb-6 group-hover:bg-accent/10 group-hover:border-accent/30 transition-colors shadow-sm">
@@ -192,6 +192,10 @@ const Home = () => {
                     <p className="text-textSecondary leading-relaxed">{skill.desc}</p>
                   </div>
                 </motion.div>
+              </Tilt>
+            ))}
+          </div>
+        </motion.div>
 
 
         {/* Case Study */}
@@ -258,10 +262,6 @@ const Home = () => {
           </div>
         </motion.div>
 
-              </Tilt>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </PageWrapper>
   );
