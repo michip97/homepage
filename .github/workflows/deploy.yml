@@ -89,6 +89,7 @@ jobs:
               export BACKEND_CONTAINER_NAME="portfolio-backend-prod"
               export FRONTEND_CONTAINER_NAME="portfolio-frontend-prod"
               export ROUTER_PREFIX="prod"
+              COMPOSE_PROJECT="portfolio"
               SERVICES_TO_START="traefik backend frontend"
               # Ensure the network exists before traefik is started, so test deployment doesn't fail
               docker network create portfolio-network || true
@@ -97,6 +98,7 @@ jobs:
               export BACKEND_CONTAINER_NAME="portfolio-backend-test"
               export FRONTEND_CONTAINER_NAME="portfolio-frontend-test"
               export ROUTER_PREFIX="test"
+              COMPOSE_PROJECT="portfolio-test"
               SERVICES_TO_START="backend frontend"
             fi
 
@@ -131,11 +133,18 @@ jobs:
             # Pull updated images
             docker compose -f docker-compose.prod.yml pull $SERVICES_TO_START
 
+            # To avoid "container name is already in use" errors during migration,
+            # we forcibly stop and remove old containers before bringing up new ones.
+            docker rm -f $BACKEND_CONTAINER_NAME $FRONTEND_CONTAINER_NAME 2>/dev/null || true
+            if [ "${GITHUB_REF}" = "refs/heads/main" ]; then
+              docker rm -f traefik-prod 2>/dev/null || true
+            fi
+
             # Recreate application containers and remove obsolete services
-            docker compose -p "portfolio-${ROUTER_PREFIX}" -f docker-compose.prod.yml up -d --remove-orphans $SERVICES_TO_START
+            docker compose -p "$COMPOSE_PROJECT" -f docker-compose.prod.yml up -d --remove-orphans $SERVICES_TO_START
 
             # Show resulting status
-            docker compose -p "portfolio-${ROUTER_PREFIX}" -f docker-compose.prod.yml ps
+            docker compose -p "$COMPOSE_PROJECT" -f docker-compose.prod.yml ps
 
             # Log out and clean up unused images
             docker logout ghcr.io
